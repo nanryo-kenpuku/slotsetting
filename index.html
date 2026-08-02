@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ドリンク販売設定画面</title>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="./firebase.js"></script>
+
     <style>
         /* 全体の背景：空のような明るい水色から薄い黄色へのグラデーション */
         body {
@@ -223,5 +225,12 @@
     </div>
 
 </body>
+<script>
+    $(function () {
+
+        loadCounter();
+
+    });
+</script>
 
 </html>
