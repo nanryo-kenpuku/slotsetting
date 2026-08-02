@@ -134,66 +134,53 @@ async function incrementCounter(type) {
     await ref.set(count + 1);
 
 }
-
 async function loadCounter() {
-await loginFirebase();
+    
+    const data = await getCounter();
 
-    const today = getToday();
-
-    const ref = db.ref("counter.json");
+    console.log(data);
 
     const tbody = $("#counterTable tbody");
-                    tbody.empty();
+    tbody.empty();
 
-                    let totalOoatari = 0;
-                    let totalOmake = 0;
-                    let rowCount = 0;
+    let totalOoatari = 0;
+    let totalOmake = 0;
+    let rowCount = 0;
 
-                    // 表示する日付
-                    const targetDates = [
-                        "2026-08-02",
-                        "2026-09-10",
-                        "2026-09-11",
-                        "2026-09-12"
-                    ];
-                    // 新しい日付順
-                    targetDates.reverse().forEach(date => {
+    const targetDates = [
+        "2026-08-02",
+        "2026-09-10",
+        "2026-09-11",
+        "2026-09-12"
+    ];
 
-                        if (!data || !data[date]) {
-                            return;
-                        }
+    targetDates.reverse().forEach(date => {
 
-                        const oo = data[date].hit || 0;
-                        const om = data[date].bonus || 0;
+        if (!data || !data[date]) return;
 
-                        // 当選が0件なら表示しない
-                        if (oo === 0 && om === 0) {
-                            return;
-                        }
+        const oo = data[date].hit ?? 0;
+        const om = data[date].bonus ?? 0;
 
-                        totalOoatari += oo;
-                        totalOmake += om;
-                        rowCount++;
+        if (oo === 0 && om === 0) return;
 
-                        tbody.append(`
-                    <tr>
-                        <td>${date}</td>
-                        <td>${oo}</td>
-                        <td>${om}</td>
-                        <td>${oo + om}</td>
-                    </tr>
-                `);
-// 合計
-                    $("#totalOoatari").text(totalOoatari);
-                    $("#totalOmake").text(totalOmake);
-                    $("#grandTotal").text(totalOoatari + totalOmake);
+        totalOoatari += oo;
+        totalOmake += om;
+        rowCount++;
 
-                    // 1件も表示するデータがなければテーブルを非表示
-                    if (rowCount === 0) {
-                        $("#counterTable").hide();
-                    } else {
-                        $("#counterTable").show();
-                    }
-            
-        }
-    }
+        tbody.append(`
+            <tr>
+                <td>${date}</td>
+                <td>${oo}</td>
+                <td>${om}</td>
+                <td>${oo + om}</td>
+            </tr>
+        `);
+    });
+
+    $("#totalOoatari").text(totalOoatari);
+    $("#totalOmake").text(totalOmake);
+    $("#grandTotal").text(totalOoatari + totalOmake);
+
+    $("#counterTable").toggle(rowCount > 0);
+}
+
