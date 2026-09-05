@@ -181,6 +181,7 @@ async function loadCounter() {
     $("#totalOmake").text(totalOmake);
     $("#grandTotal").text(totalOoatari + totalOmake);
 
-    $("#counterTable").toggle(rowCount > 0);
+    //$("#counterTable").toggle(rowCount > 0);
+     $("#counterTable").show();
 }
 
