@@ -1,188 +1,236 @@
-// =========================================
-// Firebase 初期化
-// =========================================
+<!DOCTYPE html>
+<html lang="ja">
 
-// const firebaseConfig = {
-//     apiKey: "あなたのAPIキー",
-//     authDomain: "slot-nanryo.firebaseapp.com",
-//     databaseURL: "https://slot-nanryo-default-rtdb.firebaseio.com",
-//     projectId: "slot-nanryo",
-//     storageBucket: "slot-nanryo.appspot.com",
-//     messagingSenderId: "xxxxxxxxxxxx",
-//     appId: "xxxxxxxxxxxxxxxxxxxxxxxx"
-// };
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ドリンク販売設定画面</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="./firebase.js"></script>
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAqr8nBTr78Lw7tM-B5v2dm0FSBwsRU0pI",
-    authDomain: "slot-nanryo.firebaseapp.com",
-    databaseURL: "https://slot-nanryo-default-rtdb.firebaseio.com",
-    projectId: "slot-nanryo",
-    storageBucket: "slot-nanryo.firebasestorage.app",
-    messagingSenderId: "328158773887",
-    appId: "1:328158773887:web:e39ba32ff925509b28f54a"
-};
+    <style>
+        /* 全体の背景：空のような明るい水色から薄い黄色へのグラデーション */
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Arial Black', sans-serif;
+            background: linear-gradient(135deg, #fff9c4, #b3e5fc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+        /* コンテナ：角丸で、おもちゃ箱のような温かい雰囲気 */
+        .container {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 35px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            border: 6px solid #ffeb3b;
+            /* 明るい黄色の縁取り */
+        }
 
-const db = firebase.database();
-const auth = firebase.auth();
+        h1 {
+            color: #f57c00;
+            font-size: 32px;
+            margin: 5px 0;
+            text-shadow: 1px 1px #fff;
+        }
+
+        /* 楽しいボタン：クリックしたくなる立体感 */
+        .btn {
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            border-radius: 50px;
+            padding: 20px;
+            width: 100%;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 8px #d84315;
+            transition: transform 0.1s;
+        }
+
+        #saveBtn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            font-size: 20px;
+            background: #4CAF50;
+            box-shadow: 0 6px #2E7D32;
+        }
+
+        #saveBtn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px #2E7D32;
+        }
+
+        /* チェックリスト：水色ベースで整理されたデザイン */
+        .checkbox-list {
+            text-align: left;
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            background: #e1f5fe;
+            padding: 15px;
+            border-radius: 25px;
+            border: 3px solid #b3e5fc;
+        }
+
+        /* チェックリスト：設定 */
+        .checkbox-setting {
+            text-align: left;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #e1f5fe;
+            padding: 15px;
+            border-radius: 25px;
+            border: 3px solid #b3e5fc;
+        }
+
+        .item-label {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #ffffff;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #0277bd;
+            font-weight: bold;
+        }
+
+        .item-label input {
+            accent-color: #03a9f4;
+            transform: scale(1.6);
+            margin-right: 15px;
+        }
 
 
-// =========================================
-// 匿名認証
-// =========================================
+        .section-title {
+            text-align: left;
+            font-size: 32px;
+            color: #555;
+            margin: 20px 0 10px;
+        }
 
-async function loginFirebase() {
+        .title-divider {
+            border: 0;
+            height: 3px;
+            background: linear-gradient(to right, #81D4FA, #4FC3F7, #81D4FA);
+            border-radius: 3px;
+            margin: 20px 0 25px;
+        }
 
-    if (auth.currentUser) {
-        return auth.currentUser;
-    }
+        /* ローディング画面 */
+        #loading {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 9999;
 
-    try {
+            justify-content: center;
+            align-items: center;
+        }
 
-        const result = await auth.signInAnonymously();
+        /* クルクル */
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 8px solid #E3F2FD;
+            border-top: 8px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
 
-        console.log("Firebase Anonymous Login");
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-        return result.user;
+        #counterTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 18px;
+        }
 
-    } catch (e) {
+        #counterTable th {
+            background: #2196F3;
+            color: white;
+            padding: 10px;
+        }
 
-        console.error(e);
+        #counterTable td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
 
-        alert("Firebaseへ接続できませんでした。");
+        #counterTable tbody tr:nth-child(even) {
+            background: #f7f7f7;
+        }
 
-        throw e;
+        #counterTable tfoot {
+            background: #FFF3CD;
+            font-weight: bold;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<div id="loading">
+    <div class="spinner"></div>
+</div>
 
-    }
+<body>
+    <div class="container">
+        <br />
+        <label style="font-weight: bold; color: #555; cursor: pointer; font-size: 32px;">
+            横浜南陵高校
+            <br />
+            ドリンク販売設定画面
+        </label>
 
-}
+        <table id="counterTable">
+            <thead>
+                <tr>
+                    <th>日付</th>
+                    <th>当たり</th>
+                    <th>おまけ</th>
+                    <th>合計</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <th>総合計</th>
+                    <th id="totalOoatari">0</th>
+                    <th id="totalOmake">0</th>
+                    <th id="grandTotal">0</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
+</body>
+<script>
+    $(function () {
 
+        loadCounter();
 
-// =========================================
-// Config取得
-// =========================================
-
-async function getConfig() {
-
-    const snapshot = await db.ref("config").once("value");
-
-    return snapshot.val();
-
-}
-
-
-
-// =========================================
-// Config保存
-// =========================================
-
-async function saveConfig(config) {
-
-    await loginFirebase();
-
-    await db.ref("config").set(config);
-
-}
-
-
-
-// =========================================
-// Counter取得
-// =========================================
-
-async function getCounter() {
-
-    await loginFirebase();
-
-    const snapshot = await db.ref("counter").once("value");
-
-    return snapshot.val();
-
-}
-
-
-
-// =========================================
-// Counter加算
-// =========================================
-function getToday() {
-    const now = new Date();
-    return now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0") + "-" +
-        String(now.getDate()).padStart(2, "0");
-}
-async function incrementCounter(type) {
-
-    await loginFirebase();
-
-    const today = getToday();
-
-    const ref = db.ref("counter/" + today + "/" + type);
-
-    const snapshot = await ref.once("value");
-
-    let count = snapshot.val();
-
-    if (count == null) {
-        count = 0;
-    }
-
-    await ref.set(count + 1);
-
-}
-async function loadCounter() {
-    
-    const data = await getCounter();
-
-    console.log(data);
-
-    const tbody = $("#counterTable tbody");
-    tbody.empty();
-
-    let totalOoatari = 0;
-    let totalOmake = 0;
-    let rowCount = 0;
-
-    const targetDates = [
-       /// "2026-08-02",
-        "2026-09-10",
-        "2026-09-11",
-        "2026-09-12"
-    ];
-
-    targetDates.forEach(date => {
-
-        if (!data || !data[date]) {
-            data[date] = {};
-        };
-
-        const oo = data[date].hit ?? 0;
-        const om = data[date].bonus ?? 0;
-
-        //if (oo === 0 && om === 0) return;
-
-        totalOoatari += oo;
-        totalOmake += om;
-        rowCount++;
-
-        tbody.append(`
-            <tr>
-                <td>${date}</td>
-                <td>${oo}</td>
-                <td>${om}</td>
-                <td>${oo + om}</td>
-            </tr>
-        `);
     });
+</script>
 
-    $("#totalOoatari").text(totalOoatari);
-    $("#totalOmake").text(totalOmake);
-    $("#grandTotal").text(totalOoatari + totalOmake);
-
-    $("#counterTable").toggle(rowCount > 0);
-}
-
+</html>
