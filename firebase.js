@@ -148,7 +148,7 @@ async function loadCounter() {
     let rowCount = 0;
 
     const targetDates = [
-        "2026-08-02",
+        //"2026-08-02",
         "2026-09-10",
         "2026-09-11",
         "2026-09-12"
