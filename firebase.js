@@ -148,20 +148,22 @@ async function loadCounter() {
     let rowCount = 0;
 
     const targetDates = [
-        //"2026-08-02",
+       /// "2026-08-02",
         "2026-09-10",
         "2026-09-11",
         "2026-09-12"
     ];
 
-    targetDates.reverse().forEach(date => {
+    targetDates.forEach(date => {
 
-        if (!data || !data[date]) return;
+        if (!data || !data[date]) {
+            data[date] = {};
+        };
 
         const oo = data[date].hit ?? 0;
         const om = data[date].bonus ?? 0;
 
-        if (oo === 0 && om === 0) return;
+        //if (oo === 0 && om === 0) return;
 
         totalOoatari += oo;
         totalOmake += om;
