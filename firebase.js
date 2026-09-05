@@ -156,12 +156,10 @@ async function loadCounter() {
 
     targetDates.forEach(date => {
 
-        if (!data || !data[date]) {
-            data[date] = {};
-        };
+        const dayData = data[date] || {};
 
-        const oo = data[date].hit ?? 0;
-        const om = data[date].bonus ?? 0;
+        const oo = dayData.hit ?? 0;
+        const om = dayData.bonus ?? 0;
 
         //if (oo === 0 && om === 0) return;
 
